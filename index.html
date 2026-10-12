@@ -29,7 +29,7 @@
   .lead { margin: 0 0 18px; color: var(--muted); font-size: 14px; line-height: 1.6; }
   .box { background: var(--card); border: 3px solid var(--ink); border-radius: 18px; padding: 14px; margin-bottom: 14px; }
   .label { font-size: 13px; font-weight: 800; color: var(--muted); margin: 0 0 8px; }
-  .chips { display: flex; gap: 8px; }
+  .chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
   .chip { flex: 1; font: inherit; font-weight: 800; font-size: 14px; padding: 10px 4px; border: 3px solid var(--ink); border-radius: 999px;
     background: #3a2a66; color: #fff; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; line-height: 1.25; }
   .chip small { display: block; font-weight: 600; font-size: 11px; opacity: .8; }
@@ -67,8 +67,11 @@
     <button type="button" class="chip" data-mode="s">小さめ<small>1枚 約100KB</small></button>
     <button type="button" class="chip on" data-mode="m">ふつう<small>200〜300KB</small></button>
     <button type="button" class="chip" data-mode="l">大きめ<small>約500KB</small></button>
+    <button type="button" class="chip" data-mode="xl">約1MB<small>資料・印刷に</small></button>
+    <button type="button" class="chip" data-mode="xxl">約2MB<small>きれいに残す</small></button>
+    <button type="button" class="chip" data-mode="xxxl">約3MB<small>ほぼ元のまま</small></button>
   </div>
-  <p class="hint">「ふつう」は 1枚 200〜300KB。仕事のメールや LINE にちょうどいい重さです。「小さめ」は友達に見せる用、「大きめ」は資料に貼る用。</p>
+  <p class="hint">「ふつう」は 1枚 200〜300KB。仕事のメールや LINE にちょうどいい重さです。下の段は大きめ(1MB〜)。印刷したり、きれいに残したいときに。元の写真より大きくはなりません。</p>
 </div>
 
 <label class="big" for="file" id="btnPick">写真をえらぶ</label>
@@ -98,9 +101,12 @@ var CONFIG = {
   MODE_KEY: 'resize-mode', DEFAULT_MODE: 'm',
   // できあがりの重さ(バイト)が min〜max に入るように、画質と大きさを自動で調整する
   MODES: {
-    s: { min:  70 * 1024, max: 130 * 1024, side: 800,  sideMin: 480,  sideMax: 1200 },
-    m: { min: 200 * 1024, max: 300 * 1024, side: 1280, sideMin: 800,  sideMax: 2000 },
-    l: { min: 400 * 1024, max: 600 * 1024, side: 1600, sideMin: 1000, sideMax: 2400 }
+    s:    { min:  70 * 1024,  max: 130 * 1024,  side: 800,  sideMin: 480,  sideMax: 1200 },
+    m:    { min: 200 * 1024,  max: 300 * 1024,  side: 1280, sideMin: 800,  sideMax: 2000 },
+    l:    { min: 400 * 1024,  max: 600 * 1024,  side: 1600, sideMin: 1000, sideMax: 2400 },
+    xl:   { min: 800 * 1024,  max: 1200 * 1024, side: 2000, sideMin: 1400, sideMax: 3200 },
+    xxl:  { min: 1600 * 1024, max: 2400 * 1024, side: 2800, sideMin: 2000, sideMax: 4500 },
+    xxxl: { min: 2500 * 1024, max: 3500 * 1024, side: 3500, sideMin: 2600, sideMax: 6000 }
   },
   Q_LO: 0.5, Q_HI: 0.95, Q_START: 0.8
 };
