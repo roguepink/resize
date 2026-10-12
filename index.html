@@ -86,6 +86,10 @@
 </div>
 
 <button type="button" class="big sub hidden" id="btnReset">べつの写真をえらぶ</button>
+<div class="box hidden" id="installBox">
+  <button type="button" class="big sub" id="btnInstall">📲 ホーム画面に入れる(アプリにする)</button>
+  <p class="hint" id="installHint">入れると、アイコンから全画面で開けて、電波がなくても使えます。</p>
+</div>
 <footer>写真の位置情報(どこで撮ったか)も自動で消えます。無料・登録なし。</footer>
 
 <script>
@@ -279,6 +283,27 @@ if (location.hash === '#play' || location.hash === '#demo') {
   x.style.cssText = 'position:absolute;top:4px;right:6px;width:32px;height:32px;border:0;background:none;font:900 20px/1 system-ui;color:#1b1430;cursor:pointer';
   x.addEventListener('click', function () { try { localStorage.setItem(seenKey, '1'); } catch (e) {} bar.remove(); });
   bar.appendChild(x); addEventListener('load', function () { document.body.appendChild(bar); });
+})();
+
+// Android の Chrome: ページの中から「ホーム画面に入れる」(入れられる状態になると Chrome が beforeinstallprompt を出す)
+(function () {
+  var deferred = null, box = $('installBox'), btn = $('btnInstall'), hint = $('installHint');
+  var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  if (standalone) return;
+  addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; box.classList.remove('hidden'); });
+  btn.addEventListener('click', function () {
+    btn.blur();
+    if (!deferred) return;
+    deferred.prompt();
+    deferred.userChoice.then(function (r) {
+      deferred = null;
+      if (r && r.outcome === 'accepted') { btn.classList.add('hidden'); hint.textContent = '入れました。ホーム画面か、アプリ一覧(下から上にスワイプ)に「リサイズ」があります。'; }
+    }).catch(function () {});
+  });
+  addEventListener('appinstalled', function () { btn.classList.add('hidden'); hint.textContent = '入れました。ホーム画面か、アプリ一覧(下から上にスワイプ)に「リサイズ」があります。'; box.classList.remove('hidden'); });
+  // iPhone の Safari には この仕組みがないので、手順を出す
+  var ios = /iPhone|iPad|iPod/.test(navigator.userAgent) && !/\bLine\//i.test(navigator.userAgent);
+  if (ios) { btn.classList.add('hidden'); hint.textContent = 'ホーム画面に入れる: 下の 共有ボタン(四角に↑)→「ホーム画面に追加」。'; box.classList.remove('hidden'); }
 })();
 
 // ホーム画面に入れられる(アプリのように開く)ための登録。file:// や 登録できない所では 何もしない

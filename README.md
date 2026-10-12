@@ -28,4 +28,5 @@
 ## 直して公開するとき
 
 - `main` に push すれば公開される(GitHub Pages)。電波のある人は、**次に開いたとき**に新しい版になる(`sw.js` は まずネットで最新を取りにいく)
-- `sw.js` の `VERSION` を上げるのは、覚えるファイル(`FILES`)を変えたときだけ
+- `sw.js` の `VERSION` を上げるのは、覚えるファイル(`FILES`)や `manifest.webmanifest` を変えたときだけ
+- Chrome が「すでにインストールされています」と言って入れられないときは、`manifest.webmanifest` の `id` を新しい値に変える(Chrome は `id` でアプリを見分ける。2026-10-12 に Android で起きて `./?app=resize-2` にした)

@@ -5,7 +5,7 @@
   "lang": "ja",
   "start_url": "./",
   "scope": "./",
-  "id": "./",
+  "id": "./?app=resize-2",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#140c2a",
