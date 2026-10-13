@@ -1,7 +1,7 @@
 {
-  "name": "写真リサイズ",
+  "name": "写真・動画リサイズ",
   "short_name": "リサイズ",
-  "description": "写真をえらぶだけで、ぐっと小さくします。LINEやメールで送りやすく。写真はスマホの中だけで処理します。",
+  "description": "写真も動画も、えらぶだけで ぐっと小さくします。LINEやメールで送りやすく。スマホの中だけで処理します。",
   "lang": "ja",
   "start_url": "./",
   "scope": "./",
@@ -11,8 +11,23 @@
   "background_color": "#140c2a",
   "theme_color": "#140c2a",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

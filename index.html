@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#140c2a">
-<title>写真リサイズ</title>
-<meta name="description" content="写真をえらぶだけで、ぐっと小さくします。LINEやメールで送りやすく。写真はスマホの中だけで処理します。">
+<title>写真・動画リサイズ</title>
+<meta name="description" content="写真も動画も、えらぶだけで ぐっと小さくします。LINEやメールで送りやすく。スマホの中だけで処理します。">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -13,8 +13,8 @@
 <meta name="apple-mobile-web-app-title" content="リサイズ">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta property="og:type" content="website">
-<meta property="og:title" content="写真リサイズ">
-<meta property="og:description" content="写真をえらぶだけで、ぐっと小さくします。LINEやメールで送りやすく。写真はスマホの中だけで処理します。">
+<meta property="og:title" content="写真・動画リサイズ">
+<meta property="og:description" content="写真も動画も、えらぶだけで ぐっと小さくします。LINEやメールで送りやすく。スマホの中だけで処理します。">
 <meta property="og:image" content="https://roguepink.github.io/resize/ogp.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -41,11 +41,11 @@
   .big:disabled { opacity: .45; cursor: default; }
   .big + .big { margin-top: 10px; }
   input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-  #status { min-height: 1.5em; margin: 12px 0 0; font-weight: 800; text-align: center; font-size: 18px; }
+  .status { min-height: 1.5em; margin: 12px 0 0; font-weight: 800; text-align: center; font-size: 18px; }
   .bar { height: 10px; background: #0e0822; border-radius: 999px; overflow: hidden; margin-top: 10px; display: none; }
   .bar i { display: block; height: 100%; width: 0; background: var(--green); transition: width .2s; }
-  #summary { font-size: 24px; font-weight: 900; text-align: center; margin: 0 0 14px; line-height: 1.45; }
-  #summary small { display: block; font-size: 16px; font-weight: 700; color: var(--muted); }
+  .summary { font-size: 24px; font-weight: 900; text-align: center; margin: 0 0 14px; line-height: 1.45; }
+  .summary small { display: block; font-size: 16px; font-weight: 700; color: var(--muted); }
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
   .item { background: #0e0822; border: 2px solid var(--ink); border-radius: 12px; overflow: hidden; }
   .item img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; background: #000; }
@@ -55,15 +55,36 @@
   .hint { font-size: 16px; color: var(--muted); line-height: 1.65; margin: 12px 0 0; }
   .hidden { display: none !important; }
   footer { font-size: 15px; color: var(--muted); line-height: 1.6; margin-top: 12px; text-align: center; }
+  .chip:disabled { opacity: .5; cursor: default; }
+  .big small { display: block; font-size: 15px; font-weight: 800; margin-top: 2px; }
+  video { display: block; width: 100%; max-height: 46vh; background: #000; border-radius: 12px; border: 2px solid var(--ink); margin-bottom: 10px; }
+  .info { font-size: 18px; font-weight: 900; text-align: center; margin: 0 0 12px; line-height: 1.5; }
+  .info b { color: #8df0b2; white-space: nowrap; }
+  #video .bar { height: 12px; margin: 12px 0; }
+  .hint.warn { color: #ffd0d0; font-weight: 700; }
+  /* 写真 / 動画 の切り替え */
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 14px; }
+  .tab { font: inherit; font-weight: 900; font-size: 24px; padding: 14px 4px; border: 4px solid var(--ink); border-radius: 16px;
+    background: #3a2a66; color: #fff; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .tab.on { background: var(--yellow); color: var(--ink); }
+  .tab small { display: block; font-size: 14px; font-weight: 800; margin-top: 2px; opacity: .95; }
+  #tabMsg { text-align: center; font-weight: 800; color: #ffd0d0; margin: -6px 0 12px; }
 </style>
 </head>
 <body>
-<h1>📷 写真リサイズ</h1>
-<p class="lead">写真をえらぶだけで、ぐっと小さくします。何枚でもまとめてOK。写真はこのスマホの中だけで処理し、どこにも送りません。</p>
+<h1>写真・動画リサイズ</h1>
+<p class="lead">写真も動画も、えらぶだけで ぐっと小さくします。このスマホの中だけで処理し、どこにも送りません。</p>
 
-<div class="box" id="pick">
+<div class="tabs" id="tabs">
+  <button type="button" class="tab on" data-tab="photo">📷 写真<small>何枚でも まとめて</small></button>
+  <button type="button" class="tab" data-tab="video">🎬 動画<small>1本ずつ</small></button>
+</div>
+<p class="hint hidden" id="tabMsg"></p>
+
+<section id="photo">
+<div class="box" id="p_pick">
   <p class="label">どのくらい小さくする?</p>
-  <div class="chips" id="chips">
+  <div class="chips" id="p_chips">
     <button type="button" class="chip" data-mode="s">小さめ<small>1枚 約100KB</small></button>
     <button type="button" class="chip on" data-mode="m">ふつう<small>200〜300KB</small></button>
     <button type="button" class="chip" data-mode="l">大きめ<small>約500KB</small></button>
@@ -71,204 +92,780 @@
   <p class="hint">「ふつう」は 1枚 200〜300KB。仕事のメールや LINE にちょうどいい重さです。</p>
 </div>
 
-<label class="big" for="file" id="btnPick">写真をえらぶ</label>
-<input type="file" id="file" accept="image/*" multiple>
-<p id="status"></p>
-<div class="bar" id="bar"><i></i></div>
+<label class="big" for="p_file" id="p_btnPick">写真をえらぶ</label>
+<input type="file" id="p_file" accept="image/*" multiple>
+<p id="p_status" class="status"></p>
+<div class="bar" id="p_bar"><i></i></div>
 
-<div class="box hidden" id="result">
-  <p id="summary"></p>
-  <button type="button" class="big green" id="btnShare">LINEなどで送る</button>
-  <button type="button" class="big sub" id="btnSave">まとめて保存</button>
-  <p class="hint" id="shareHint"></p>
-  <div class="grid" id="grid"></div>
+<div class="box hidden" id="p_result">
+  <p id="p_summary" class="summary"></p>
+  <button type="button" class="big green" id="p_btnShare">LINEなどで送る</button>
+  <button type="button" class="big sub" id="p_btnSave">まとめて保存</button>
+  <p class="hint" id="p_shareHint"></p>
+  <div class="grid" id="p_grid"></div>
   <p class="hint">1枚ずつ: 下の「保存」を押すか、写真を長押しで保存できます。</p>
 </div>
 
-<button type="button" class="big sub hidden" id="btnReset">べつの写真をえらぶ</button>
+<button type="button" class="big sub hidden" id="p_btnReset">べつの写真をえらぶ</button>
+</section>
+
+<section id="video" class="hidden">
+<div class="box" id="v_pick">
+  <p class="label">どのくらい小さくする?</p>
+  <div class="chips" id="v_chips">
+    <button type="button" class="chip" data-mode="p50">50%<small>重さを半分に</small></button>
+    <button type="button" class="chip on" data-mode="p25">25%<small>4分の1に</small></button>
+    <button type="button" class="chip" data-mode="p10">10%<small>10分の1に</small></button>
+  </div>
+  <p class="hint">もとの動画の重さに対する割合です。「25%」なら、スマホで撮った1分の動画(60MB くらい)が 約15MB に。LINE やメールにちょうどいい重さです。</p>
+</div>
+
+<label class="big" for="v_file" id="v_btnPick">動画をえらぶ</label>
+<input type="file" id="v_file" accept="video/*">
+<p id="v_status" class="status"></p>
+
+<div class="box hidden" id="v_work">
+  <video id="v_src" playsinline muted preload="metadata"></video>
+  <p id="v_info" class="info"></p>
+  <div class="bar" id="v_bar"><i></i></div>
+  <button type="button" class="big" id="v_btnStart">小さくする</button>
+  <p class="hint" id="v_workHint"></p>
+  <p class="hint hidden" id="v_diag" style="font-size:13px;word-break:break-all"></p>
+  <button type="button" class="big green hidden" id="v_btnResume">▶ つづきから</button>
+  <button type="button" class="big sub hidden" id="v_btnCancel">やめる</button>
+</div>
+
+<div class="box hidden" id="v_result">
+  <p id="v_summary" class="summary"></p>
+  <video id="v_out" playsinline controls></video>
+  <button type="button" class="big green" id="v_btnShare">LINEなどで送る</button>
+  <button type="button" class="big sub" id="v_btnSave">保存する</button>
+  <p class="hint" id="v_shareHint"></p>
+</div>
+
+<button type="button" class="big sub hidden" id="v_btnReset">べつの動画をえらぶ</button>
+</section>
+
 <div class="box hidden" id="installBox">
   <button type="button" class="big sub" id="btnInstall">📲 ホーム画面に入れる(アプリにする)</button>
   <p class="hint" id="installHint">入れると、アイコンから全画面で開けて、電波がなくても使えます。</p>
 </div>
-<footer>写真の位置情報(どこで撮ったか)も自動で消えます。無料・登録なし。</footer>
+<footer>無料・登録なし。写真の位置情報(どこで撮ったか)も自動で消えます。</footer>
 
 <script>
 'use strict';
-var CONFIG = {
-  MODE_KEY: 'resize-mode', DEFAULT_MODE: 'm',
-  // できあがりの重さ(バイト)が min〜max に入るように、画質と大きさを自動で調整する
-  MODES: {
-    s:    { min:  70 * 1024,  max: 130 * 1024,  side: 800,  sideMin: 480,  sideMax: 1200 },
-    m:    { min: 200 * 1024,  max: 300 * 1024,  side: 1280, sideMin: 800,  sideMax: 2000 },
-    l:    { min: 400 * 1024,  max: 600 * 1024,  side: 1600, sideMin: 1000, sideMax: 2400 }
-  },
-  Q_LO: 0.5, Q_HI: 0.95, Q_START: 0.8
-};
 var $ = function (id) { return document.getElementById(id); };
-var state = { mode: CONFIG.DEFAULT_MODE, items: [], busy: false };
-try { var saved = localStorage.getItem(CONFIG.MODE_KEY); if (saved && CONFIG.MODES[saved]) state.mode = saved; } catch (e) {}
 
-/* ---- 大きさの選択 ---- */
-var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
-function setMode(m) {
-  state.mode = m;
-  chips.forEach(function (c) { c.classList.toggle('on', c.dataset.mode === m); });
-  try { localStorage.setItem(CONFIG.MODE_KEY, m); } catch (e) {}
-}
-chips.forEach(function (c) { c.addEventListener('click', function () { setMode(c.dataset.mode); c.blur(); }); });
-setMode(state.mode);
+/* ================= 📷 写真 ================= */
+(function () {
+  var CONFIG = {
+    MODE_KEY: 'resize-mode', DEFAULT_MODE: 'm',
+    // できあがりの重さ(バイト)が min〜max に入るように、画質と大きさを自動で調整する
+    MODES: {
+      s:    { min:  70 * 1024,  max: 130 * 1024,  side: 800,  sideMin: 480,  sideMax: 1200 },
+      m:    { min: 200 * 1024,  max: 300 * 1024,  side: 1280, sideMin: 800,  sideMax: 2000 },
+      l:    { min: 400 * 1024,  max: 600 * 1024,  side: 1600, sideMin: 1000, sideMax: 2400 }
+    },
+    Q_LO: 0.5, Q_HI: 0.95, Q_START: 0.8
+  };
+  var state = { mode: CONFIG.DEFAULT_MODE, items: [], busy: false };
+  try { var saved = localStorage.getItem(CONFIG.MODE_KEY); if (saved && CONFIG.MODES[saved]) state.mode = saved; } catch (e) {}
 
-/* ---- 1枚を小さくする(純粋な部分) ---- */
-function fitSize(w, h, maxSide) {            // 長い辺を maxSide 以下にしたときの大きさ(拡大はしない)
-  var s = Math.min(1, maxSide / Math.max(w, h));
-  return { w: Math.max(1, Math.round(w * s)), h: Math.max(1, Math.round(h * s)), scale: s };
-}
-function kb(n) { return n < 1024 * 1024 ? Math.max(1, Math.round(n / 1024)) + 'KB' : (n / 1048576).toFixed(1) + 'MB'; }
-function outName(name) { return (name || 'photo').replace(/\.[^.]+$/, '') + '_small.jpg'; }
-
-function loadImage(file) {
-  return new Promise(function (ok, ng) {
-    var url = URL.createObjectURL(file), img = new Image();
-    img.onload = function () { URL.revokeObjectURL(url); ok(img); };
-    img.onerror = function () { URL.revokeObjectURL(url); ng(new Error('この形式は読めません')); };
-    img.src = url;
-  });
-}
-function shrink(img, maxSide) {              // 半分ずつ縮めると きれいに仕上がる
-  var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height, dst = fitSize(w, h, maxSide);
-  var src = img, cw = w, ch = h;
-  while (cw / 2 >= dst.w && ch / 2 >= dst.h) {
-    var c = document.createElement('canvas'); c.width = Math.round(cw / 2); c.height = Math.round(ch / 2);
-    var x = c.getContext('2d'); x.imageSmoothingQuality = 'high'; x.drawImage(src, 0, 0, c.width, c.height);
-    src = c; cw = c.width; ch = c.height;
+  /* ---- 大きさの選択 ---- */
+  var chips = Array.prototype.slice.call(document.querySelectorAll('#photo .chip'));
+  function setMode(m) {
+    state.mode = m;
+    chips.forEach(function (c) { c.classList.toggle('on', c.dataset.mode === m); });
+    try { localStorage.setItem(CONFIG.MODE_KEY, m); } catch (e) {}
   }
-  var out = document.createElement('canvas'); out.width = dst.w; out.height = dst.h;
-  var ctx = out.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, dst.w, dst.h);   // 透明な絵は白地に
-  ctx.imageSmoothingQuality = 'high'; ctx.drawImage(src, 0, 0, dst.w, dst.h);
-  return out;
-}
-function toJpeg(canvas, q) {
-  return new Promise(function (ok, ng) { canvas.toBlob(function (b) { b ? ok(b) : ng(new Error('変換できません')); }, 'image/jpeg', q); });
-}
-/* 重さが min〜max に入るまで、画質(q)→ 大きさ(side)の順に調整する。純粋な判断は nextStep() に分けてある */
-function nextStep(size, t, side, q) {              // 戻り値: 'ok' / {q} / {side} / 'give-up'
-  if (size >= t.min && size <= t.max) return 'ok';
-  if (size > t.max) {
-    if (q > CONFIG.Q_LO + 0.01) return { q: Math.max(CONFIG.Q_LO, q - Math.max(0.05, (q - CONFIG.Q_LO) / 2)) };
-    if (side > t.sideMin + 1) return { side: Math.max(t.sideMin, Math.round(side * 0.85)), q: CONFIG.Q_START };
+  chips.forEach(function (c) { c.addEventListener('click', function () { setMode(c.dataset.mode); c.blur(); }); });
+  setMode(state.mode);
+
+  /* ---- 1枚を小さくする(純粋な部分) ---- */
+  function fitSize(w, h, maxSide) {            // 長い辺を maxSide 以下にしたときの大きさ(拡大はしない)
+    var s = Math.min(1, maxSide / Math.max(w, h));
+    return { w: Math.max(1, Math.round(w * s)), h: Math.max(1, Math.round(h * s)), scale: s };
+  }
+  function kb(n) { return n < 1024 * 1024 ? Math.max(1, Math.round(n / 1024)) + 'KB' : (n / 1048576).toFixed(1) + 'MB'; }
+  function outName(name) { return (name || 'photo').replace(/\.[^.]+$/, '') + '_small.jpg'; }
+
+  function loadImage(file) {
+    return new Promise(function (ok, ng) {
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () { URL.revokeObjectURL(url); ok(img); };
+      img.onerror = function () { URL.revokeObjectURL(url); ng(new Error('この形式は読めません')); };
+      img.src = url;
+    });
+  }
+  function shrink(img, maxSide) {              // 半分ずつ縮めると きれいに仕上がる
+    var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height, dst = fitSize(w, h, maxSide);
+    var src = img, cw = w, ch = h;
+    while (cw / 2 >= dst.w && ch / 2 >= dst.h) {
+      var c = document.createElement('canvas'); c.width = Math.round(cw / 2); c.height = Math.round(ch / 2);
+      var x = c.getContext('2d'); x.imageSmoothingQuality = 'high'; x.drawImage(src, 0, 0, c.width, c.height);
+      src = c; cw = c.width; ch = c.height;
+    }
+    var out = document.createElement('canvas'); out.width = dst.w; out.height = dst.h;
+    var ctx = out.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, dst.w, dst.h);   // 透明な絵は白地に
+    ctx.imageSmoothingQuality = 'high'; ctx.drawImage(src, 0, 0, dst.w, dst.h);
+    return out;
+  }
+  function toJpeg(canvas, q) {
+    return new Promise(function (ok, ng) { canvas.toBlob(function (b) { b ? ok(b) : ng(new Error('変換できません')); }, 'image/jpeg', q); });
+  }
+  /* 重さが min〜max に入るまで、画質(q)→ 大きさ(side)の順に調整する。純粋な判断は nextStep() に分けてある */
+  function nextStep(size, t, side, q) {              // 戻り値: 'ok' / {q} / {side} / 'give-up'
+    if (size >= t.min && size <= t.max) return 'ok';
+    if (size > t.max) {
+      if (q > CONFIG.Q_LO + 0.01) return { q: Math.max(CONFIG.Q_LO, q - Math.max(0.05, (q - CONFIG.Q_LO) / 2)) };
+      if (side > t.sideMin + 1) return { side: Math.max(t.sideMin, Math.round(side * 0.85)), q: CONFIG.Q_START };
+      return 'give-up';
+    }
+    if (q < CONFIG.Q_HI - 0.01) return { q: Math.min(CONFIG.Q_HI, q + Math.max(0.03, (CONFIG.Q_HI - q) / 2)) };
+    if (side < t.sideMax - 1) return { side: Math.min(t.sideMax, Math.round(side * 1.2)), q: CONFIG.Q_START };
     return 'give-up';
   }
-  if (q < CONFIG.Q_HI - 0.01) return { q: Math.min(CONFIG.Q_HI, q + Math.max(0.03, (CONFIG.Q_HI - q) / 2)) };
-  if (side < t.sideMax - 1) return { side: Math.min(t.sideMax, Math.round(side * 1.2)), q: CONFIG.Q_START };
-  return 'give-up';
-}
-async function shrinkFile(file, mode) {
-  var t = CONFIG.MODES[mode] || CONFIG.MODES.m;
-  var img = await loadImage(file);
-  var w = img.naturalWidth, h = img.naturalHeight, longest = Math.max(w, h);
-  var side = Math.min(t.side, longest), q = CONFIG.Q_START, canvas = null, blob = null, best = null;
-  for (var i = 0; i < 14; i++) {
-    if (!canvas || canvas.width !== fitSize(w, h, side).w) { if (canvas) canvas.width = canvas.height = 0; canvas = shrink(img, side); }
-    blob = await toJpeg(canvas, q);
-    if (!best || Math.abs(blob.size - (t.min + t.max) / 2) < Math.abs(best.size - (t.min + t.max) / 2)) best = blob;
-    var step = nextStep(blob.size, t, side, q);
-    if (step === 'ok') { best = blob; break; }
-    if (step === 'give-up') break;
-    if (step.side && step.side >= longest && side >= longest) break;   // 元の写真より大きくはしない
-    if (step.side) side = Math.min(step.side, longest);
-    q = step.q;
-  }
-  if (canvas) canvas.width = canvas.height = 0;
-  var small = (file.size <= best.size && /^image\/jpe?g$/i.test(file.type) && file.size <= t.max) ? file : best;   // もう十分小さい写真はそのまま
-  var out = new File([small], outName(file.name), { type: 'image/jpeg', lastModified: Date.now() });
-  return { file: out, before: file.size, after: out.size, w: w, h: h };
-}
-
-/* ---- まとめて処理 ---- */
-async function processFiles(files) {
-  if (!files.length || state.busy) return;
-  state.busy = true; clearItems();
-  $('btnPick').classList.add('hidden'); $('result').classList.add('hidden'); $('btnReset').classList.add('hidden');
-  $('bar').style.display = 'block';
-  var failed = 0;
-  for (var i = 0; i < files.length; i++) {
-    $('status').textContent = (i + 1) + ' / ' + files.length + ' 枚目を小さくしています…';
-    $('bar').firstChild.style.width = Math.round(i / files.length * 100) + '%';
-    try { state.items.push(await shrinkFile(files[i], state.mode)); } catch (e) { failed++; console.error(files[i].name, e); }
-    await new Promise(function (r) { setTimeout(r, 0); });
-  }
-  $('bar').firstChild.style.width = '100%';
-  state.busy = false;
-  showResult(failed);
-}
-function showResult(failed) {
-  var items = state.items, before = 0, after = 0;
-  items.forEach(function (it) { before += it.before; after += it.after; });
-  $('bar').style.display = 'none';
-  $('status').textContent = failed ? failed + ' 枚は読めませんでした(写真以外のファイルかも)' : '';
-  if (!items.length) { $('btnPick').classList.remove('hidden'); return; }
-  $('summary').innerHTML = items.length + '枚 できました<br>' + kb(before) + ' → <span style="color:#8df0b2">' + kb(after) + '</span>' +
-    '<small>' + (before > after ? Math.round((1 - after / before) * 100) + '% 小さくなりました' : 'もともと小さい写真でした') + '</small>';
-  var grid = $('grid'); grid.innerHTML = '';
-  items.forEach(function (it, i) {
-    var d = document.createElement('div'); d.className = 'item';
-    var img = document.createElement('img'); img.alt = it.file.name; it.url = URL.createObjectURL(it.file); img.src = it.url;
-    var sz = document.createElement('div'); sz.className = 'sz'; sz.innerHTML = kb(it.before) + '<br>→ <b>' + kb(it.after) + '</b>';
-    var a = document.createElement('a'); a.href = it.url; a.download = it.file.name; a.textContent = '保存';
-    d.appendChild(img); d.appendChild(sz); d.appendChild(a); grid.appendChild(d);
-  });
-  var canShare = !!(navigator.canShare && navigator.canShare({ files: items.map(function (it) { return it.file; }) }));
-  $('btnShare').classList.toggle('hidden', !canShare);
-  $('shareHint').textContent = canShare ? '「LINEなどで送る」を押すと、送り先を選ぶ画面が出ます。LINE を選ぶと小さくした写真がそのまま送れます。'
-    : 'このブラウザでは「送る」ボタンが使えません。「まとめて保存」してから、LINE で写真を選んで送ってください。';
-  $('result').classList.remove('hidden'); $('btnReset').classList.remove('hidden');
-}
-function clearItems() {
-  state.items.forEach(function (it) { if (it.url) URL.revokeObjectURL(it.url); });
-  state.items = []; $('grid').innerHTML = '';
-}
-
-$('file').addEventListener('change', function (ev) {
-  var files = Array.prototype.slice.call(ev.target.files || []);
-  ev.target.value = '';
-  processFiles(files).catch(function (e) { console.error(e); state.busy = false; $('status').textContent = 'うまくいきませんでした。もう一度ためしてください'; $('btnPick').classList.remove('hidden'); });
-});
-$('btnShare').addEventListener('click', function () {
-  this.blur();
-  var files = state.items.map(function (it) { return it.file; });
-  navigator.share({ files: files, title: '写真' }).catch(function (e) { if (e && e.name !== 'AbortError') { console.error(e); $('status').textContent = '送れませんでした。「まとめて保存」をためしてください'; } });
-});
-$('btnSave').addEventListener('click', function () {
-  this.blur();
-  var items = state.items, i = 0;
-  (function next() {
-    if (i >= items.length) return;
-    var a = document.createElement('a'); a.href = items[i].url; a.download = items[i].file.name; document.body.appendChild(a); a.click(); a.remove();
-    i++; setTimeout(next, 400);        // 一度に出すと ブラウザが 止めることがあるので 少しずつ
-  })();
-});
-$('btnReset').addEventListener('click', function () {
-  this.blur(); clearItems();
-  $('result').classList.add('hidden'); $('btnReset').classList.add('hidden'); $('status').textContent = ''; $('btnPick').classList.remove('hidden');
-});
-
-/* 確認用: アドレスの末尾に #play(または #demo)をつけると、作った写真3枚で ためしに動かす(スクショ・自動確認で使う) */
-if (location.hash === '#play' || location.hash === '#demo') {
-  (async function () {
-    var files = [];
-    var specs = [[4000, 3000, '#e0585b'], [3000, 4000, '#4a90e2'], [2400, 2400, '#39b54a']];
-    for (var i = 0; i < specs.length; i++) {
-      var c = document.createElement('canvas'); c.width = specs[i][0]; c.height = specs[i][1];
-      var x = c.getContext('2d'), g = x.createLinearGradient(0, 0, c.width, c.height);
-      g.addColorStop(0, specs[i][2]); g.addColorStop(1, '#fff'); x.fillStyle = g; x.fillRect(0, 0, c.width, c.height);
-      for (var k = 0; k < 400; k++) { x.fillStyle = 'rgba(0,0,0,' + (Math.random() * 0.5) + ')'; x.fillRect(Math.random() * c.width, Math.random() * c.height, 60, 60); }
-      x.fillStyle = '#000'; x.font = 'bold 300px sans-serif'; x.fillText('TEST ' + (i + 1), 200, 600);
-      var b = await toJpeg(c, 0.95); files.push(new File([b], 'test' + (i + 1) + '.jpg', { type: 'image/jpeg' }));
+  async function shrinkFile(file, mode) {
+    var t = CONFIG.MODES[mode] || CONFIG.MODES.m;
+    var img = await loadImage(file);
+    var w = img.naturalWidth, h = img.naturalHeight, longest = Math.max(w, h);
+    var side = Math.min(t.side, longest), q = CONFIG.Q_START, canvas = null, blob = null, best = null;
+    for (var i = 0; i < 14; i++) {
+      if (!canvas || canvas.width !== fitSize(w, h, side).w) { if (canvas) canvas.width = canvas.height = 0; canvas = shrink(img, side); }
+      blob = await toJpeg(canvas, q);
+      if (!best || Math.abs(blob.size - (t.min + t.max) / 2) < Math.abs(best.size - (t.min + t.max) / 2)) best = blob;
+      var step = nextStep(blob.size, t, side, q);
+      if (step === 'ok') { best = blob; break; }
+      if (step === 'give-up') break;
+      if (step.side && step.side >= longest && side >= longest) break;   // 元の写真より大きくはしない
+      if (step.side) side = Math.min(step.side, longest);
+      q = step.q;
     }
-    window.__demoDone = false;
-    await processFiles(files); window.__demoDone = true;
-  })().catch(function (e) { console.error(e); });
-}
+    if (canvas) canvas.width = canvas.height = 0;
+    var small = (file.size <= best.size && /^image\/jpe?g$/i.test(file.type) && file.size <= t.max) ? file : best;   // もう十分小さい写真はそのまま
+    var out = new File([small], outName(file.name), { type: 'image/jpeg', lastModified: Date.now() });
+    return { file: out, before: file.size, after: out.size, w: w, h: h };
+  }
+
+  /* ---- まとめて処理 ---- */
+  async function processFiles(files) {
+    if (!files.length || state.busy) return;
+    state.busy = true; clearItems();
+    $('p_btnPick').classList.add('hidden'); $('p_result').classList.add('hidden'); $('p_btnReset').classList.add('hidden');
+    $('p_bar').style.display = 'block';
+    var failed = 0;
+    for (var i = 0; i < files.length; i++) {
+      $('p_status').textContent = (i + 1) + ' / ' + files.length + ' 枚目を小さくしています…';
+      $('p_bar').firstChild.style.width = Math.round(i / files.length * 100) + '%';
+      try { state.items.push(await shrinkFile(files[i], state.mode)); } catch (e) { failed++; console.error(files[i].name, e); }
+      await new Promise(function (r) { setTimeout(r, 0); });
+    }
+    $('p_bar').firstChild.style.width = '100%';
+    state.busy = false;
+    showResult(failed);
+  }
+  function showResult(failed) {
+    var items = state.items, before = 0, after = 0;
+    items.forEach(function (it) { before += it.before; after += it.after; });
+    $('p_bar').style.display = 'none';
+    $('p_status').textContent = failed ? failed + ' 枚は読めませんでした(写真以外のファイルかも)' : '';
+    if (!items.length) { $('p_btnPick').classList.remove('hidden'); return; }
+    $('p_summary').innerHTML = items.length + '枚 できました<br>' + kb(before) + ' → <span style="color:#8df0b2">' + kb(after) + '</span>' +
+      '<small>' + (before > after ? Math.round((1 - after / before) * 100) + '% 小さくなりました' : 'もともと小さい写真でした') + '</small>';
+    var grid = $('p_grid'); grid.innerHTML = '';
+    items.forEach(function (it, i) {
+      var d = document.createElement('div'); d.className = 'item';
+      var img = document.createElement('img'); img.alt = it.file.name; it.url = URL.createObjectURL(it.file); img.src = it.url;
+      var sz = document.createElement('div'); sz.className = 'sz'; sz.innerHTML = kb(it.before) + '<br>→ <b>' + kb(it.after) + '</b>';
+      var a = document.createElement('a'); a.href = it.url; a.download = it.file.name; a.textContent = '保存';
+      d.appendChild(img); d.appendChild(sz); d.appendChild(a); grid.appendChild(d);
+    });
+    var canShare = !!(navigator.canShare && navigator.canShare({ files: items.map(function (it) { return it.file; }) }));
+    $('p_btnShare').classList.toggle('hidden', !canShare);
+    $('p_shareHint').textContent = canShare ? '「LINEなどで送る」を押すと、送り先を選ぶ画面が出ます。LINE を選ぶと小さくした写真がそのまま送れます。'
+      : 'このブラウザでは「送る」ボタンが使えません。「まとめて保存」してから、LINE で写真を選んで送ってください。';
+    $('p_result').classList.remove('hidden'); $('p_btnReset').classList.remove('hidden');
+  }
+  function clearItems() {
+    state.items.forEach(function (it) { if (it.url) URL.revokeObjectURL(it.url); });
+    state.items = []; $('p_grid').innerHTML = '';
+  }
+
+  $('p_file').addEventListener('change', function (ev) {
+    var files = Array.prototype.slice.call(ev.target.files || []);
+    ev.target.value = '';
+    processFiles(files).catch(function (e) { console.error(e); state.busy = false; $('p_status').textContent = 'うまくいきませんでした。もう一度ためしてください'; $('p_btnPick').classList.remove('hidden'); });
+  });
+  $('p_btnShare').addEventListener('click', function () {
+    this.blur();
+    var files = state.items.map(function (it) { return it.file; });
+    navigator.share({ files: files, title: '写真' }).catch(function (e) { if (e && e.name !== 'AbortError') { console.error(e); $('p_status').textContent = '送れませんでした。「まとめて保存」をためしてください'; } });
+  });
+  $('p_btnSave').addEventListener('click', function () {
+    this.blur();
+    var items = state.items, i = 0;
+    (function next() {
+      if (i >= items.length) return;
+      var a = document.createElement('a'); a.href = items[i].url; a.download = items[i].file.name; document.body.appendChild(a); a.click(); a.remove();
+      i++; setTimeout(next, 400);        // 一度に出すと ブラウザが 止めることがあるので 少しずつ
+    })();
+  });
+  $('p_btnReset').addEventListener('click', function () {
+    this.blur(); clearItems();
+    $('p_result').classList.add('hidden'); $('p_btnReset').classList.add('hidden'); $('p_status').textContent = ''; $('p_btnPick').classList.remove('hidden');
+  });
+
+  /* 確認用: アドレスの末尾に #play(または #demo)をつけると、作った写真3枚で ためしに動かす(スクショ・自動確認で使う) */
+  if (location.hash === '#play' || location.hash === '#play-photo') {
+    (async function () {
+      var files = [];
+      var specs = [[4000, 3000, '#e0585b'], [3000, 4000, '#4a90e2'], [2400, 2400, '#39b54a']];
+      for (var i = 0; i < specs.length; i++) {
+        var c = document.createElement('canvas'); c.width = specs[i][0]; c.height = specs[i][1];
+        var x = c.getContext('2d'), g = x.createLinearGradient(0, 0, c.width, c.height);
+        g.addColorStop(0, specs[i][2]); g.addColorStop(1, '#fff'); x.fillStyle = g; x.fillRect(0, 0, c.width, c.height);
+        for (var k = 0; k < 400; k++) { x.fillStyle = 'rgba(0,0,0,' + (Math.random() * 0.5) + ')'; x.fillRect(Math.random() * c.width, Math.random() * c.height, 60, 60); }
+        x.fillStyle = '#000'; x.font = 'bold 300px sans-serif'; x.fillText('TEST ' + (i + 1), 200, 600);
+        var b = await toJpeg(c, 0.95); files.push(new File([b], 'test' + (i + 1) + '.jpg', { type: 'image/jpeg' }));
+      }
+      window.__demoDone = false;
+      await processFiles(files); window.__demoDone = true;
+    })().catch(function (e) { console.error(e); });
+  }
+
+  window.photo = { CONFIG: CONFIG, state: state, setMode: setMode, processFiles: processFiles, busy: function () { return state.busy; } };
+})();
+
+/* ================= 🎬 動画 ================= */
+(function () {
+  var CONFIG = {
+    MODE_KEY: 'dogaresize-mode', DEFAULT_MODE: 'p25',
+    // pct: もとの重さに対する できあがりの割合(%)。ボタンの文字は上の HTML(data-mode が同じもの)
+    MODES: { p50: { pct: 50 }, p25: { pct: 25 }, p10: { pct: 10 } },
+    ABPS: 96000,                 // 音の 1秒あたりのデータ量。96k より下げない(mp4 の音の圧縮機が 64k を受け付けず失敗した 2026-10-12)
+    MIN_VBPS: 250000, MAX_VBPS: 8000000,   // 絵の 1秒あたりのデータ量の下限・上限
+    SHORTS: [1080, 720, 480, 360], MIN_BPP: 0.035,   // 大きさの候補(短い辺)と、1コマ1画素あたり最低限ほしいデータ量(これを下回るとブロックだらけになる)
+    FPS: 30, CHUNK_MS: 1000, LONG_SEC: 10 * 60,
+    // できあがりの形式。上から順に、このブラウザで作れるものを使う(iPhone は mp4、Android の Chrome は たいてい webm)
+    MIMES: ['video/mp4;codecs=avc1.42E01E,mp4a.40.2', 'video/mp4;codecs=avc1,mp4a.40.2', 'video/mp4;codecs=avc1,opus', 'video/mp4',
+            'video/webm;codecs=h264,opus', 'video/webm;codecs=vp8,opus', 'video/webm;codecs=vp9,opus', 'video/webm']   // スマホでは軽い vp8 を vp9 より先に
+  };
+  var state = { mode: CONFIG.DEFAULT_MODE, file: null, meta: null, srcUrl: null, out: null, outUrl: null, job: null, badMimes: [], tries: 0 };
+  try { var saved = localStorage.getItem(CONFIG.MODE_KEY); if (saved && CONFIG.MODES[saved]) state.mode = saved; } catch (e) {}
+
+  var SUPPORTED = !!(window.MediaRecorder && window.HTMLCanvasElement && HTMLCanvasElement.prototype.captureStream && (window.AudioContext || window.webkitAudioContext));
+
+  /* ---- 大きさの選択 ---- */
+  var chips = Array.prototype.slice.call(document.querySelectorAll('#video .chip'));
+  function setMode(m) {
+    state.mode = m;
+    chips.forEach(function (c) { c.classList.toggle('on', c.dataset.mode === m); });
+    try { localStorage.setItem(CONFIG.MODE_KEY, m); } catch (e) {}
+    if (state.meta) showInfo();
+  }
+  chips.forEach(function (c) { c.addEventListener('click', function () { if (!state.job) setMode(c.dataset.mode); c.blur(); }); });
+  setMode(state.mode);
+
+  /* ---- 計算(純粋な部分。ブラウザがなくても確かめられる) ---- */
+  function even(n) { return Math.max(2, Math.round(n / 2) * 2); }     // 動画の大きさは偶数にする(圧縮の決まり)
+  function outSize(w, h, shortSide) {                                  // 短い辺を shortSide 以下に。拡大はしない
+    var s = Math.min(1, shortSide / Math.min(w, h));
+    return { w: even(w * s), h: even(h * s), scale: s };
+  }
+  /* 割合(pct)から、できあがりの データ量と大きさを決める。
+     もとの動画の 1秒あたりのデータ量 × pct% を目標にし、絵の大きさは「1画素あたりのデータ量が足りる いちばん大きいもの」を選ぶ */
+  function plan(mode, w, h, sec, bytes) {
+    var t = CONFIG.MODES[mode] || CONFIG.MODES[CONFIG.DEFAULT_MODE], total = bytes * 8 / Math.max(0.1, sec) * t.pct / 100;
+    var v = Math.min(CONFIG.MAX_VBPS, Math.max(CONFIG.MIN_VBPS, Math.round(total - CONFIG.ABPS)));
+    var dim = null;
+    for (var i = 0; i < CONFIG.SHORTS.length; i++) {
+      dim = outSize(w, h, CONFIG.SHORTS[i]);
+      if (v / (dim.w * dim.h * CONFIG.FPS) >= CONFIG.MIN_BPP) break;      // 足りるなら これにする。足りなければ 1つ小さい候補へ
+    }
+    return { v: v, a: CONFIG.ABPS, w: dim.w, h: dim.h, pct: t.pct, est: (v + CONFIG.ABPS) * sec / 8 };
+  }
+  function mb(n) { return n < 1024 * 1024 ? Math.max(1, Math.round(n / 1024)) + 'KB' : (n / 1048576).toFixed(n < 10485760 ? 1 : 0) + 'MB'; }
+  function mmss(sec) { sec = Math.max(0, Math.round(sec)); var m = Math.floor(sec / 60), s = sec % 60; return m ? m + '分' + (s ? s + '秒' : '') : s + '秒'; }
+  function pickMime() {                      // 一度失敗した形式(state.badMimes)は飛ばす
+    for (var i = 0; i < CONFIG.MIMES.length; i++) { try { if (state.badMimes.indexOf(CONFIG.MIMES[i]) < 0 && MediaRecorder.isTypeSupported(CONFIG.MIMES[i])) return CONFIG.MIMES[i]; } catch (e) {} }
+    return '';
+  }
+  function extOf(mime) { return /mp4/i.test(mime || '') ? 'mp4' : 'webm'; }
+  function readBuf(blob) { return new Promise(function (ok, ng) { var r = new FileReader(); r.onload = function () { ok(r.result); }; r.onerror = function () { ng(r.error); }; r.readAsArrayBuffer(blob); }); }
+  function outName(name, ext) { return (name || 'video').replace(/\.[^.]+$/, '') + '_small.' + ext; }
+
+  /* ---- 動画を読む ---- */
+  function loadVideo(video, file) {
+    return new Promise(function (ok, ng) {
+      if (state.srcUrl) URL.revokeObjectURL(state.srcUrl);
+      state.srcUrl = URL.createObjectURL(file);
+      var timer = setTimeout(function () { fail(new Error('timeout')); }, 30000);
+      function cleanup() { clearTimeout(timer); video.onloadedmetadata = video.onloadeddata = video.onerror = video.ondurationchange = null; }
+      function fail(e) { cleanup(); ng(e || new Error('この動画は読めません')); }
+      function ready() {
+        if (!video.videoWidth || !video.videoHeight) return false;
+        if (!isFinite(video.duration) || video.duration <= 0) return false;
+        cleanup(); video.currentTime = 0;
+        ok({ w: video.videoWidth, h: video.videoHeight, dur: video.duration });
+        return true;
+      }
+      video.onerror = function () { fail(); };
+      video.onloadedmetadata = function () {
+        if (ready()) return;
+        if (!isFinite(video.duration)) video.currentTime = 1e101;     // 長さが分からない動画(録画したての webm など)は、終わりまで飛ばすと分かる
+        video.ondurationchange = ready; video.onloadeddata = ready;
+      };
+      video.src = state.srcUrl; video.load();
+    });
+  }
+
+  /* ---- 音の通り道(1回だけ作る。同じ video に2回は作れない)。スピーカーにはつながず、録画にだけ送る ---- */
+  var audio = { ctx: null, src: null, dest: null };
+  function audioTrack(video) {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return null;
+    if (!audio.ctx) {
+      try {
+        audio.ctx = new AC();
+        audio.src = audio.ctx.createMediaElementSource(video);
+        audio.dest = audio.ctx.createMediaStreamDestination();
+        audio.src.connect(audio.dest);
+      } catch (e) { console.error(e); audio.ctx = null; return null; }
+    }
+    if (audio.ctx.state !== 'running') audio.ctx.resume().catch(function () {});
+    return audio.dest.stream.getAudioTracks()[0] || null;
+  }
+
+  /* ---- 小さくする: 動画を再生しながら、小さい絵に描き直して録画する(動画と同じ時間がかかる) ---- */
+  function shrinkVideo(video, meta, mode, bytes, onProgress) {
+    var br = plan(mode, meta.w, meta.h, meta.dur, bytes), dim = { w: br.w, h: br.h };
+    var canvas = document.createElement('canvas'); canvas.width = dim.w; canvas.height = dim.h;
+    var ctx = canvas.getContext('2d', { alpha: false }); ctx.imageSmoothingQuality = 'high';
+    var stream = canvas.captureStream(CONFIG.FPS);
+    var atrack = audioTrack(video);
+    if (atrack) stream.addTrack(atrack);
+    var mime = pickMime(), opts = { videoBitsPerSecond: br.v, audioBitsPerSecond: br.a };
+    if (mime) opts.mimeType = mime;
+    var rec;
+    try { rec = new MediaRecorder(stream, opts); } catch (e) { rec = new MediaRecorder(stream); }
+    var chunks = [], done = false, cancelled = false, job = {};
+    var p = new Promise(function (ok, ng) {
+      function stop(err) {
+        if (done) return; done = true;
+        video.onended = video.onerror = null; video.pause();
+        if (err) { cancelled = true; try { if (rec.state !== 'inactive') rec.stop(); } catch (e) {} stream.getTracks().forEach(function (tr) { if (tr !== atrack) tr.stop(); }); ng(err); return; }
+        try { if (rec.state !== 'inactive') rec.stop(); else finish(); } catch (e) { finish(); }
+      }
+      function finish() {
+        stream.getTracks().forEach(function (tr) { if (tr !== atrack) tr.stop(); });
+        if (cancelled) return;
+        var blob = new Blob(chunks, { type: rec.mimeType || mime || 'video/webm' });
+        if (!blob.size) { ng(new Error('空')); return; }
+        var ext = extOf(blob.type), plain = (blob.type || '').split(';')[0] || (ext === 'mp4' ? 'video/mp4' : 'video/webm');   // 「;codecs=…」を外す(ついたままだと Android の「送る」が受け付けない)
+        function deliver(b, fixed) { ok({ file: new File([b], outName(state.file && state.file.name, ext), { type: plain, lastModified: Date.now() }), w: dim.w, h: dim.h, ext: ext, mime: blob.type, fixed: fixed }); }
+        readBuf(blob).then(function (buf) {            // ふつうの作りに組み直す(できなければ そのまま)
+          var fixed = null;
+          try { fixed = ext === 'mp4' ? remuxMp4(buf) : fixWebmDuration(buf, meta.dur); } catch (e) { console.warn('remux', e); }
+          deliver(fixed ? new Blob([fixed], { type: plain }) : blob, !!fixed);
+        }).catch(function (e) { console.warn('readBuf', e); deliver(blob, false); });
+      }
+      rec.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
+      rec.onerror = function (e) { var err = (e && e.error) || new Error('録画に失敗'); try { err.kind = 'rec'; err.mime = mime; } catch (x) {} stop(err); };
+      rec.onstop = function () { if (!cancelled) finish(); };
+      var rvfc = typeof video.requestVideoFrameCallback === 'function', last = 0;
+      function draw() {
+        if (done) return;
+        try { ctx.drawImage(video, 0, 0, dim.w, dim.h); } catch (e) {}
+        var now = Date.now();
+        if (now - last > 250) { last = now; onProgress(video.currentTime, meta.dur); }
+        if (rvfc) video.requestVideoFrameCallback(draw); else requestAnimationFrame(draw);
+      }
+      video.onended = function () { onProgress(meta.dur, meta.dur); setTimeout(function () { stop(); }, 150); };   // 最後のコマまで録ってから止める
+      video.onerror = function () { var ve = video.error, err = new Error('再生に失敗 ' + (ve ? ve.code + ' ' + (ve.message || '') : '')); err.kind = 'video'; stop(err); };
+      job.cancel = function () { var e = new Error('cancel'); e.name = 'AbortError'; stop(e); };
+      /* いったん止める / つづきから。止まっている間は録画も止める(止まった絵や無音が入らないように)。
+         再開の再生は iPhone だと「人のタップ」がないと拒否されることがあるので、だめなら「つづきから」ボタンを出す */
+      var pausing = false;
+      job.pause = function () {
+        if (done || pausing) return; pausing = true;
+        video.pause(); try { if (rec.state === 'recording') rec.pause(); } catch (e) {}
+        if (job.onpause) job.onpause();
+      };
+      job.resume = function () {
+        if (done || !pausing) return Promise.resolve();
+        return video.play().then(function () {
+          pausing = false; try { if (rec.state === 'paused') rec.resume(); } catch (e) {}
+          if (job.onresume) job.onresume();
+        }).catch(function (e) { console.warn('resume', e); if (job.onpause) job.onpause(); throw e; });
+      };
+      video.onpause = function () { if (!done && !pausing && !video.ended) job.pause(); };   // こちらが止めたのではなく、スマホの都合で止まったとき(画面ロックなど)
+      video.muted = false; video.volume = 1; video.playbackRate = 1; video.currentTime = 0;
+      rec.start(CONFIG.CHUNK_MS);
+      ctx.fillStyle = '#000'; ctx.fillRect(0, 0, dim.w, dim.h);
+      video.play().then(function () { draw(); }).catch(function (e) { stop(e || new Error('再生できません')); });
+    });
+    job.promise = p; job.dim = dim; job.mime = mime;
+    return job;
+  }
+
+  /* ---- できあがりの動画を「ふつうの作り」に組み直す ----
+     ブラウザ(MediaRecorder)が作る mp4 は、細切れ(fragmented: moof+mdat の繰り返し)の特殊な作りで、長さの情報も入っていない。
+     Mac や iPhone は読めるが、Android や LINE は最初の切れ端しか読めず「数秒で止まる」ことがある(ノブさんの Android で 2026-10-13)。
+     そこで、全コマの表(stbl)を持つ ふつうの mp4(ftyp + moov + mdat)に組み直す。読めない作りのときは null を返し、元のまま使う。 */
+  function remuxMp4(buf) {
+    var u8 = new Uint8Array(buf), dv = new DataView(buf), N = u8.length;
+    function str(o) { return String.fromCharCode(u8[o], u8[o + 1], u8[o + 2], u8[o + 3]); }
+    function u32(o) { return dv.getUint32(o); }
+    function boxes(s, e) {                            // s〜e の中にある箱の一覧 [{t, s, e, p}](p = 中身の始まり)
+      var out = [];
+      while (s + 8 <= e) {
+        var sz = u32(s), t = str(s + 4), hdr = 8;
+        if (sz === 1) { sz = dv.getUint32(s + 8) * 4294967296 + dv.getUint32(s + 12); hdr = 16; }
+        else if (sz === 0) sz = e - s;
+        if (sz < hdr || s + sz > e) return null;
+        out.push({ t: t, s: s, e: s + sz, p: s + hdr }); s += sz;
+      }
+      return out;
+    }
+    function find(list, t) { for (var i = 0; list && i < list.length; i++) if (list[i].t === t) return list[i]; return null; }
+    var top = boxes(0, N); if (!top) return null;
+    var moov = find(top, 'moov'); if (!moov || !find(top, 'moof')) return null;     // 細切れでなければ そのまま
+    var mc = boxes(moov.p, moov.e); if (!mc) return null;
+    var mvhd = find(mc, 'mvhd'); if (!mvhd) return null;
+    var mvVer = u8[mvhd.p], mvTs = mvVer === 1 ? u32(mvhd.p + 20) : u32(mvhd.p + 12);
+    // trex(各トラックの既定値)
+    var trex = {}, mvex = find(mc, 'mvex');
+    if (mvex) boxes(mvex.p, mvex.e).forEach(function (b) { if (b.t === 'trex') trex[u32(b.p + 4)] = { dur: u32(b.p + 12), size: u32(b.p + 16), flags: u32(b.p + 20) }; });
+    // トラックの情報
+    var tracks = {}, order = [];
+    for (var i = 0; i < mc.length; i++) {
+      if (mc[i].t !== 'trak') continue;
+      var tc = boxes(mc[i].p, mc[i].e), tkhd = find(tc, 'tkhd'), mdia = find(tc, 'mdia'); if (!tkhd || !mdia) return null;
+      var tv = u8[tkhd.p], id = tv === 1 ? u32(tkhd.p + 20) : u32(tkhd.p + 12);
+      var mdc = boxes(mdia.p, mdia.e), mdhd = find(mdc, 'mdhd'), hdlr = find(mdc, 'hdlr'), minf = find(mdc, 'minf'); if (!mdhd || !hdlr || !minf) return null;
+      var mv = u8[mdhd.p], ts = mv === 1 ? u32(mdhd.p + 20) : u32(mdhd.p + 12);
+      var mic = boxes(minf.p, minf.e), stbl = find(mic, 'stbl'); if (!stbl) return null;
+      var stsd = find(boxes(stbl.p, stbl.e), 'stsd'); if (!stsd) return null;
+      tracks[id] = { id: id, trak: mc[i], tc: tc, tkhd: tkhd, mdia: mdia, mdc: mdc, mdhd: mdhd, minf: minf, mic: mic, stsd: stsd, ts: ts, samples: [] };
+      order.push(id);
+    }
+    // 細切れ(moof)から コマの一覧を集める
+    for (i = 0; i < top.length; i++) {
+      if (top[i].t !== 'moof') continue;
+      var moof = top[i], fc = boxes(moof.p, moof.e); if (!fc) return null;
+      for (var j = 0; j < fc.length; j++) {
+        if (fc[j].t !== 'traf') continue;
+        var trc = boxes(fc[j].p, fc[j].e), tfhd = find(trc, 'tfhd'); if (!tfhd) return null;
+        var tf = u32(tfhd.p) & 0xffffff, tid = u32(tfhd.p + 4), o = tfhd.p + 8, tr = tracks[tid]; if (!tr) return null;
+        var base = moof.s, dflt = trex[tid] || { dur: 0, size: 0, flags: 0 }, d = { dur: dflt.dur, size: dflt.size, flags: dflt.flags };
+        if (tf & 1) { base = u32(o) * 4294967296 + u32(o + 4); o += 8; }
+        if (tf & 2) o += 4;
+        if (tf & 8) { d.dur = u32(o); o += 4; }
+        if (tf & 0x10) { d.size = u32(o); o += 4; }
+        if (tf & 0x20) { d.flags = u32(o); o += 4; }
+        for (var k = 0; k < trc.length; k++) {
+          if (trc[k].t !== 'trun') continue;
+          var tv2 = u8[trc[k].p], fl = u32(trc[k].p) & 0xffffff, cnt = u32(trc[k].p + 4), q = trc[k].p + 8, off = base, first = null;
+          if (fl & 1) { off += dv.getInt32(q); q += 4; }
+          if (fl & 4) { first = u32(q); q += 4; }
+          for (var n = 0; n < cnt; n++) {
+            var sm = { dur: d.dur, size: d.size, flags: (n === 0 && first !== null) ? first : d.flags, cts: 0 };
+            if (fl & 0x100) { sm.dur = u32(q); q += 4; }
+            if (fl & 0x200) { sm.size = u32(q); q += 4; }
+            if (fl & 0x400) { sm.flags = u32(q); q += 4; }
+            if (fl & 0x800) { sm.cts = tv2 === 0 ? u32(q) : dv.getInt32(q); q += 4; }
+            if (off + sm.size > N) return null;
+            sm.off = off; off += sm.size; tr.samples.push(sm);
+          }
+        }
+      }
+    }
+    // 箱を作る道具
+    function be32(v) { return [(v >>> 24) & 255, (v >>> 16) & 255, (v >>> 8) & 255, v & 255]; }
+    function box(t, parts) {
+      var len = 8; parts.forEach(function (p) { len += p.length; });
+      var out = new Uint8Array(len), o = 4; out.set(be32(len), 0);
+      out[4] = t.charCodeAt(0); out[5] = t.charCodeAt(1); out[6] = t.charCodeAt(2); out[7] = t.charCodeAt(3); o = 8;
+      parts.forEach(function (p) { out.set(p, o); o += p.length; }); return out;
+    }
+    function full(t, ver, flags, words) {              // words: 32ビットの数の配列
+      var out = new Uint8Array(4 + words.length * 4); out[0] = ver; out[1] = (flags >> 16) & 255; out[2] = (flags >> 8) & 255; out[3] = flags & 255;
+      for (var i = 0; i < words.length; i++) out.set(be32(words[i]), 4 + i * 4);
+      return box(t, [out]);
+    }
+    function raw(b) { return u8.subarray(b.s, b.e); }
+    function patched(b, offset, bytes, value) {        // 箱をコピーして、offset(中身からの位置)の長さの欄を value にする
+      var c = new Uint8Array(raw(b)), v = new DataView(c.buffer, c.byteOffset, c.length), o = (b.p - b.s) + offset;
+      if (bytes === 8) { v.setUint32(o, Math.floor(value / 4294967296)); v.setUint32(o + 4, value >>> 0); } else v.setUint32(o, Math.min(value, 0xffffffff));
+      return c;
+    }
+    // 各トラックの表(stbl)と長さ
+    var total = 0, mvDur = 0, traks = [], chunks = [];
+    order.forEach(function (id) {
+      var tr = tracks[id], S = tr.samples; if (!S.length) return;
+      var dur = 0; S.forEach(function (s) { dur += s.dur; }); tr.dur = dur;
+      mvDur = Math.max(mvDur, Math.round(dur * mvTs / tr.ts));
+      S.forEach(function (s) { s.newOff = total; total += s.size; chunks.push(s); });
+    });
+    if (!chunks.length) return null;
+    var ftyp = box('ftyp', [new Uint8Array([105, 115, 111, 109, 0, 0, 2, 0, 105, 115, 111, 109, 105, 115, 111, 50, 97, 118, 99, 49, 109, 112, 52, 49])]);  // isom, isom iso2 avc1 mp41
+    function buildMoov(dataStart) {
+      var parts = [patched(mvhd, mvVer === 1 ? 24 : 16, mvVer === 1 ? 8 : 4, mvDur)];
+      order.forEach(function (id) {
+        var tr = tracks[id], S = tr.samples; if (!S.length) return;
+        var tv = u8[tr.tkhd.p], mv = u8[tr.mdhd.p];
+        // stts(長さの並び)
+        var stts = [], last = -1; S.forEach(function (s) { if (s.dur === last) stts[stts.length - 1]++; else { stts.push(s.dur, 1); last = s.dur; } });
+        var sttsW = [stts.length / 2]; for (var i = 0; i < stts.length; i += 2) sttsW.push(stts[i + 1], stts[i]);   // (個数, 長さ) の順
+        // ctts(表示順のずれ)が必要なときだけ
+        var hasCts = false, neg = false; S.forEach(function (s) { if (s.cts) hasCts = true; if (s.cts < 0) neg = true; });
+        var ctts = null;
+        if (hasCts) { var cw = [], lc = null; S.forEach(function (s) { if (lc !== null && s.cts === lc) cw[cw.length - 2]++; else { cw.push(1, s.cts >>> 0); lc = s.cts; } }); ctts = full('ctts', neg ? 1 : 0, 0, [cw.length / 2].concat(cw)); }
+        // stss(先頭から再生できるコマ)。全部そうなら 省く
+        var sync = []; S.forEach(function (s, i) { if (!((s.flags >>> 16) & 1)) sync.push(i + 1); });
+        var stss = sync.length === S.length ? null : full('stss', 0, 0, [sync.length].concat(sync));
+        var stsc = full('stsc', 0, 0, [1, 1, 1, 1]);                                   // 1コマ = 1かたまり
+        var stsz = full('stsz', 0, 0, [0, S.length].concat(S.map(function (s) { return s.size; })));
+        var offs = S.map(function (s) { return dataStart + s.newOff; }), big = offs[offs.length - 1] > 0xffffffff;
+        var stco = big ? full('co64', 0, 0, [S.length].concat([].concat.apply([], offs.map(function (o) { return [Math.floor(o / 4294967296), o >>> 0]; }))))
+                       : full('stco', 0, 0, [S.length].concat(offs));
+        var stblParts = [raw(tr.stsd), full('stts', 0, 0, sttsW)]; if (ctts) stblParts.push(ctts); if (stss) stblParts.push(stss); stblParts.push(stsc, stsz, stco);
+        var minfParts = []; tr.mic.forEach(function (b) { minfParts.push(b.t === 'stbl' ? box('stbl', stblParts) : raw(b)); });
+        var mdiaParts = []; tr.mdc.forEach(function (b) { mdiaParts.push(b.t === 'mdhd' ? patched(b, mv === 1 ? 24 : 16, mv === 1 ? 8 : 4, tr.dur) : b.t === 'minf' ? box('minf', minfParts) : raw(b)); });
+        var trakParts = []; tr.tc.forEach(function (b) { trakParts.push(b.t === 'tkhd' ? patched(b, tv === 1 ? 28 : 20, tv === 1 ? 8 : 4, Math.round(tr.dur * mvTs / tr.ts)) : b.t === 'mdia' ? box('mdia', mdiaParts) : raw(b)); });
+        parts.push(box('trak', trakParts));
+      });
+      return box('moov', parts);
+    }
+    var moovA = buildMoov(0), dataStart = ftyp.length + moovA.length + 8, moovB = buildMoov(dataStart);
+    if (moovB.length !== moovA.length) return null;
+    var out = new Uint8Array(dataStart + total); out.set(ftyp, 0); out.set(moovB, ftyp.length);
+    out.set(be32(8 + total), dataStart - 8); out.set([109, 100, 97, 116], dataStart - 4);   // mdat
+    chunks.forEach(function (s) { out.set(u8.subarray(s.off, s.off + s.size), dataStart + s.newOff); });
+    return out.buffer;
+  }
+
+  /* webm(Android の Chrome がこれを作ることがある)は「長さ」(Duration)が入っていないので、書き足す。sec = 動画の長さ(秒) */
+  function fixWebmDuration(buf, sec) {
+    var u8 = new Uint8Array(buf), N = u8.length;
+    function vint(o, strip) {                          // EBML の 可変長の数。戻り値 { v, len }。長さ不明(全部1)は -1
+      var b = u8[o], len = 1, mask = 0x80; while (len <= 8 && !(b & mask)) { len++; mask >>= 1; }
+      if (len > 8 || o + len > N) return null;
+      var v = strip ? (b & (mask - 1)) : b, all1 = strip && (b & (mask - 1)) === mask - 1;
+      for (var i = 1; i < len; i++) { v = v * 256 + u8[o + i]; if (u8[o + i] !== 255) all1 = false; }
+      return { v: all1 ? -1 : v, len: len };
+    }
+    function elem(o) { var id = vint(o, false); if (!id) return null; var sz = vint(o + id.len, true); if (!sz) return null; return { id: id.v, s: o, p: o + id.len + sz.len, size: sz.v, idLen: id.len, szLen: sz.len }; }
+    var o = 0, seg = null;
+    while (o < N) { var e = elem(o); if (!e) return null; if (e.id === 0x18538067) { seg = e; break; } if (e.size < 0) return null; o = e.p + e.size; }
+    if (!seg) return null;
+    o = seg.p; var info = null, end = seg.size < 0 ? N : seg.p + seg.size;
+    while (o < end) { e = elem(o); if (!e || e.size < 0) return null; if (e.id === 0x1549A966) { info = e; break; } o = e.p + e.size; }
+    if (!info) return null;
+    var scale = 1000000, durEl = null; o = info.p;
+    while (o < info.p + info.size) { e = elem(o); if (!e || e.size < 0) return null; if (e.id === 0x2AD7B1) { scale = 0; for (var i = 0; i < e.size; i++) scale = scale * 256 + u8[e.p + i]; } if (e.id === 0x4489) durEl = e; o = e.p + e.size; }
+    var value = sec * 1e9 / scale, out, dv;
+    if (durEl && durEl.size === 8) { out = new Uint8Array(buf.slice(0)); new DataView(out.buffer).setFloat64(durEl.p, value); return out.buffer; }
+    if (durEl && durEl.size === 4) { out = new Uint8Array(buf.slice(0)); new DataView(out.buffer).setFloat32(durEl.p, value); return out.buffer; }
+    if (durEl || info.size > 0x3fff - 11) return null;
+    var add = new Uint8Array(11); add[0] = 0x44; add[1] = 0x89; add[2] = 0x88; new DataView(add.buffer).setFloat64(3, value);
+    var newSize = info.size + 11, hdr = new Uint8Array(info.idLen + 2); hdr.set(u8.subarray(info.s, info.s + info.idLen), 0);
+    hdr[info.idLen] = 0x40 | (newSize >> 8); hdr[info.idLen + 1] = newSize & 255;        // 長さは 2バイトで書き直す
+    out = new Uint8Array(N - info.szLen + 2 + 11); o = 0;
+    out.set(u8.subarray(0, info.s), o); o += info.s; out.set(hdr, o); o += hdr.length;
+    out.set(u8.subarray(info.p, info.p + info.size), o); o += info.size; out.set(add, o); o += 11;
+    out.set(u8.subarray(info.p + info.size), o);
+    if (seg.size >= 0) { var sv = new DataView(out.buffer); var segSz = seg.size + (2 - info.szLen) + 11; if (seg.szLen === 8) { sv.setUint32(seg.s + seg.idLen, 0x01000000 | Math.floor(segSz / 4294967296)); sv.setUint32(seg.s + seg.idLen + 4, segSz >>> 0); } else return null; }
+    return out.buffer;
+  }
+
+  /* ---- 画面の流れ ---- */
+  var wake = null;
+  function keepAwake() { if (navigator.wakeLock && navigator.wakeLock.request) navigator.wakeLock.request('screen').then(function (l) { wake = l; }).catch(function () {}); }
+  function letSleep() { if (wake) { wake.release().catch(function () {}); wake = null; } }
+
+  function showInfo() {
+    var m = state.meta, pl = plan(state.mode, m.w, m.h, m.dur, state.file.size), tiny = pl.est >= state.file.size * 0.9;
+    $('v_info').innerHTML = mmss(m.dur) + '・' + m.w + '×' + m.h + '・' + mb(state.file.size) + '<br>→ できあがり <b>約' + mb(pl.est) + '</b>' +
+      (tiny ? '<br><span style="color:#ffd0d0">もともと軽い動画なので、これ以上は小さくなりません</span>' : '<br>(' + pl.w + '×' + pl.h + ' になります)');
+    $('v_btnStart').innerHTML = '小さくする<small>' + mmss(m.dur) + ' くらいかかります</small>';
+    var long = m.dur > CONFIG.LONG_SEC;
+    $('v_workHint').className = 'hint' + (long ? ' warn' : '');
+    $('v_workHint').textContent = (long ? '長い動画です。途中で失敗することがあります。短く切ってから試すと確実です。' : '')
+      + '動画と同じ時間がかかります。終わるまで この画面のままにしてください。画面が消えたり ほかのアプリに切り替えたりすると いったん止まり、戻って「つづきから」を押すと続きます。';
+  }
+  async function pickFile(file) {
+    if (!file || state.job) return;
+    clearAll();
+    state.file = file; state.tries = 0; $('v_diag').classList.add('hidden');
+    $('v_status').textContent = '動画を読んでいます…';
+    $('v_btnPick').classList.add('hidden');
+    try {
+      state.meta = await loadVideo($('v_src'), file);
+    } catch (e) {
+      console.error(e); state.file = null; state.meta = null;
+      $('v_status').textContent = 'この動画は読めませんでした。iPhone なら「設定 → カメラ → フォーマット → 互換性優先」で撮ると読めます';
+      $('v_btnPick').classList.remove('hidden'); return;
+    }
+    $('v_status').textContent = '';
+    showInfo();
+    $('v_work').classList.remove('hidden'); $('v_btnStart').classList.remove('hidden'); $('v_btnCancel').classList.add('hidden'); $('v_bar').style.display = 'none';
+    $('v_btnReset').classList.remove('hidden');
+  }
+  async function start() {
+    if (!state.meta || state.job) return;
+    var video = $('v_src'), t0 = Date.now();
+    chips.forEach(function (c) { c.disabled = true; });
+    $('v_btnStart').classList.add('hidden'); $('v_btnCancel').classList.remove('hidden'); $('v_btnReset').classList.add('hidden');
+    $('v_bar').style.display = 'block'; $('v_bar').firstChild.style.width = '0%';
+    $('v_workHint').className = 'hint'; $('v_workHint').textContent = '終わるまで この画面のままにしてください。';
+    keepAwake();
+    var paused = false;
+    var job = state.job = shrinkVideo(video, state.meta, state.mode, state.file.size, function (cur, dur) {
+      if (paused) return;
+      $('v_bar').firstChild.style.width = Math.round(cur / dur * 100) + '%';
+      $('v_status').textContent = '小さくしています… ' + mmss(cur) + ' / ' + mmss(dur) + '(残り 約' + mmss(dur - cur) + ')';
+    });
+    job.onpause = function () { paused = true; $('v_status').textContent = 'いったん止まっています。「つづきから」を押してください'; $('v_btnResume').classList.remove('hidden'); };
+    job.onresume = function () { paused = false; $('v_status').textContent = '小さくしています…'; $('v_btnResume').classList.add('hidden'); };
+    try {
+      var r = await job.promise;
+      state.out = r; showResult(t0);
+    } catch (e) {
+      console.error(e);
+      state.job = null; letSleep();
+      if (e && e.name === 'AbortError') { $('v_status').textContent = 'やめました'; }
+      else {
+        // 録画の形式が原因なら、その形式を外して 自動でもう一度(2回まで)。それ以外は、動画を読み直してから「小さくする」を押せるようにする
+        var retry = e && e.kind === 'rec' && state.tries < 2;
+        if (retry) { state.tries++; if (job.mime) state.badMimes.push(job.mime); $('v_status').textContent = '別の方式で やり直しています…'; }
+        else { $('v_status').textContent = 'うまくいきませんでした。「小さくする」を もう一度押してみてください'; $('v_diag').textContent = diag(e, job); $('v_diag').classList.remove('hidden'); }
+        try { state.meta = await loadVideo(video, state.file); } catch (x) { console.error(x); $('v_status').textContent = 'この動画が読めなくなりました。「べつの動画をえらぶ」から やり直してください'; retry = false; }
+        if (retry) { chips.forEach(function (c) { c.disabled = false; }); $('v_btnCancel').classList.add('hidden'); $('v_btnResume').classList.add('hidden'); return start(); }
+      }
+      $('v_btnStart').classList.remove('hidden');
+    } finally {
+      state.job = null; letSleep(); chips.forEach(function (c) { c.disabled = false; });
+      $('v_btnCancel').classList.add('hidden'); $('v_btnResume').classList.add('hidden'); $('v_bar').style.display = 'none'; $('v_btnReset').classList.remove('hidden');
+    }
+  }
+  /* 失敗したときに画面に出す「くわしい情報」(スクショで送ってもらえば原因が分かる) */
+  function diag(e, job) {
+    var ua = navigator.userAgent, os = /Android/.test(ua) ? 'Android' : /iPhone|iPad/.test(ua) ? 'iPhone' : 'PC';
+    var br = (ua.match(/(CriOS|Chrome|Version)\/(\d+)/) || [])[0] || '', line = /\bLine\//.test(ua) ? ' LINE内' : '';
+    var m = state.meta || {}, f = state.file || {};
+    return '[' + os + ' ' + br + line + ' / 形式: ' + ((job && job.mime) || '既定') + ' / 動画: ' + (f.type || '?') + ' ' + (m.w || '?') + '×' + (m.h || '?') + ' ' + mmss(m.dur || 0) + ' ' + mb(f.size || 0) +
+      ' / できあがり: ' + (job && job.dim ? job.dim.w + '×' + job.dim.h : '?') + ' / 原因: ' + (e && (e.name + ' ' + e.message) || e) + ']';
+  }
+  function showResult(t0) {
+    var r = state.out, before = state.file.size, after = r.file.size;
+    $('v_work').classList.add('hidden'); $('v_status').textContent = ''; state.tries = 0;
+    $('v_summary').innerHTML = 'できました<br>' + mb(before) + ' → <span style="color:#8df0b2">' + mb(after) + '</span>' +
+      '<small>' + (before > after ? Math.round((1 - after / before) * 100) + '% 小さくなりました' : 'もとの動画より大きくなりました') + '(' + r.w + '×' + r.h + '・' + r.ext + (r.fixed ? '' : '・未整形') + ')</small>';
+    if (state.outUrl) URL.revokeObjectURL(state.outUrl);
+    state.outUrl = URL.createObjectURL(r.file);
+    $('v_out').src = state.outUrl;
+    var canShare = false;
+    try { canShare = !!(navigator.canShare && navigator.canShare({ files: [r.file] })); } catch (e) { canShare = false; }
+    var big = after > 45 * 1024 * 1024;                     // Android の Chrome は 50MB くらいまでしか「送る」に渡せない
+    $('v_btnShare').classList.toggle('hidden', !canShare);
+    $('v_shareHint').textContent = (!canShare ? 'このブラウザでは「送る」ボタンが使えません。「保存する」してから、LINE で動画を選んで送ってください。'
+      : big ? 'できあがりが大きいので、「送る」が失敗することがあります。だめなら「保存する」してから LINE で動画を選ぶか、「10%」でもう一度作ってください。'
+      : '「LINEなどで送る」を押すと、送り先を選ぶ画面が出ます。LINE を選ぶと小さくした動画がそのまま送れます。')
+      + (r.ext === 'webm' ? ' このブラウザでは webm という形式になります。LINE で送れないときは、保存してから LINE で選んでください。' : '');
+    $('v_result').classList.remove('hidden'); $('v_btnReset').classList.remove('hidden');
+    console.log('done', Math.round((Date.now() - t0) / 1000) + 's', before, '->', after, r.mime, r.fixed ? 'remuxed' : 'raw');
+  }
+  function clearAll() {
+    if (state.job) state.job.cancel();
+    if (state.srcUrl) { URL.revokeObjectURL(state.srcUrl); state.srcUrl = null; }
+    if (state.outUrl) { URL.revokeObjectURL(state.outUrl); state.outUrl = null; }
+    $('v_src').removeAttribute('src'); $('v_out').removeAttribute('src');
+    state.file = null; state.meta = null; state.out = null;
+    $('v_work').classList.add('hidden'); $('v_result').classList.add('hidden'); $('v_btnReset').classList.add('hidden'); $('v_status').textContent = '';
+  }
+
+  $('v_file').addEventListener('change', function (ev) {
+    var f = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    pickFile(f).catch(function (e) { console.error(e); $('v_status').textContent = 'うまくいきませんでした。もう一度ためしてください'; $('v_btnPick').classList.remove('hidden'); });
+  });
+  $('v_btnStart').addEventListener('click', function () { this.blur(); start(); });
+  $('v_btnCancel').addEventListener('click', function () { this.blur(); if (state.job) state.job.cancel(); });
+  $('v_btnResume').addEventListener('click', function () { this.blur(); if (state.job) state.job.resume().catch(function () {}); });
+  $('v_btnShare').addEventListener('click', function () {
+    this.blur();
+    var hint = $('v_shareHint');
+    navigator.share({ files: [state.out.file], title: '動画' }).then(function () { hint.textContent = '送りました。'; })
+      .catch(function (e) {
+        if (e && e.name === 'AbortError') return;   // 送り先を選ばずに閉じた
+        console.error(e);
+        hint.textContent = '送れませんでした(' + (e && e.name) + ' ' + (e && e.message || '') + ')。「保存する」で保存してから、LINE で動画を選んで送ってください。';
+        hint.className = 'hint warn';
+      });
+  });
+  $('v_btnSave').addEventListener('click', function () {
+    this.blur();
+    var a = document.createElement('a'); a.href = state.outUrl; a.download = state.out.file.name; document.body.appendChild(a); a.click(); a.remove();
+  });
+  $('v_btnReset').addEventListener('click', function () { this.blur(); clearAll(); $('v_btnPick').classList.remove('hidden'); });
+  // ほかのアプリに切り替えたら いったん止め、戻ったら続ける(切り替え中は絵が止まってしまうので)
+  // ほかのアプリに切り替えたり画面が消えたりしたら いったん止め、戻ったら続ける(自動で続けられなければ「つづきから」ボタン)
+  document.addEventListener('visibilitychange', function () { if (!state.job) return; if (document.hidden) state.job.pause(); else state.job.resume().catch(function () {}); });
+
+  if (!SUPPORTED) {
+    $('v_btnPick').classList.add('hidden');
+    $('v_status').textContent = 'このブラウザでは動画を小さくできません。iPhone は Safari、Android は Chrome で開いてください。';
+  }
+
+  /* 確認用: アドレスの末尾に #play(または #demo)をつけると、その場で作った3秒の動画で ためしに動かす(スクショ・自動確認で使う) */
+  if (SUPPORTED && location.hash === '#play-video') {
+    (function () {
+      var c = document.createElement('canvas'); c.width = 1280; c.height = 720; var x = c.getContext('2d');
+      var st = c.captureStream(30), rec = new MediaRecorder(st), chunks = [], f = 0;
+      rec.ondataavailable = function (e) { if (e.data.size) chunks.push(e.data); };
+      rec.onstop = function () {
+        var b = new Blob(chunks, { type: rec.mimeType }), file = new File([b], 'test.' + extOf(rec.mimeType), { type: rec.mimeType });
+        window.__demoDone = false;
+        pickFile(file).then(function () { return start(); }).then(function () { window.__demoDone = true; }).catch(function (e) { console.error(e); });
+      };
+      var tm = setInterval(function () {
+        f++; x.fillStyle = 'hsl(' + (f * 4 % 360) + ',70%,40%)'; x.fillRect(0, 0, c.width, c.height);
+        x.fillStyle = '#fff'; x.font = 'bold 200px sans-serif'; x.fillText('TEST ' + f, 100 + (f % 60) * 5, 420);
+        if (f >= 90) { clearInterval(tm); rec.stop(); }
+      }, 33);
+      rec.start(200);
+    })();
+  }
+
+  window.video = { CONFIG: CONFIG, state: state, setMode: setMode, pickMime: pickMime, diag: diag, SUPPORTED: SUPPORTED, remuxMp4: remuxMp4, fixWebmDuration: fixWebmDuration, busy: function () { return !!state.job; } };
+})();
+
+/* ---- 写真 / 動画 の切り替え ---- */
+(function () {
+  var TAB_KEY = 'resize-tab', tabs = Array.prototype.slice.call(document.querySelectorAll('.tab')), msg = $('tabMsg'), msgTimer = 0;
+  function busy() { return (window.photo && photo.busy()) || (window.video && video.busy()); }
+  function show(t) {
+    tabs.forEach(function (b) { b.classList.toggle('on', b.dataset.tab === t); });
+    $('photo').classList.toggle('hidden', t !== 'photo'); $('video').classList.toggle('hidden', t !== 'video');
+    try { localStorage.setItem(TAB_KEY, t); } catch (e) {}
+  }
+  tabs.forEach(function (b) {
+    b.addEventListener('click', function () {
+      b.blur();
+      if (b.classList.contains('on')) return;
+      if (busy()) {                                 // 小さくしている最中は切り替えない(動画は 見えていないと止まることがある)
+        msg.textContent = '小さくし終わるまで 待ってください'; msg.classList.remove('hidden');
+        clearTimeout(msgTimer); msgTimer = setTimeout(function () { msg.classList.add('hidden'); }, 2500); return;
+      }
+      show(b.dataset.tab);
+    });
+  });
+  // 最初に出す方: アドレスの #video / #play-video なら動画、#photo / #play なら写真、それ以外は前回の方
+  var h = location.hash, t = /video/.test(h) ? 'video' : /photo|play/.test(h) ? 'photo' : null;
+  if (!t) { try { t = localStorage.getItem(TAB_KEY); } catch (e) {} }
+  show(t === 'video' ? 'video' : 'photo');
+})();
 
 // LINE の中で開いたときだけ、1回だけ案内する(LINE の中は「送る」ボタンが使えないことがあり、ホーム画面にも入れられない)
 (function () {
@@ -278,7 +875,7 @@ if (location.hash === '#play' || location.hash === '#demo') {
   if (!/\bLine\//i.test(navigator.userAgent) || standalone || seen) return;
   var bar = document.createElement('div');
   bar.style.cssText = 'position:fixed;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:99999;background:#fffaf0;color:#1b1430;border:3px solid #1b1430;border-radius:14px;padding:10px 40px 10px 12px;font:700 15px/1.5 system-ui,sans-serif';
-  bar.textContent = 'LINEの中だと「送る」ボタンが使えないことがあります。右下の「…」(または右上の︙)から「ブラウザで開く」を選ぶと、ちゃんと使えて、ホーム画面にも入れられます。';
+  bar.textContent = 'LINEの中だと うまく動かないことがあります。右下の「…」(または右上の︙)から「ブラウザで開く」を選ぶと、ちゃんと使えて、ホーム画面にも入れられます。';
   var x = document.createElement('button'); x.type = 'button'; x.setAttribute('aria-label', 'とじる'); x.textContent = '×';
   x.style.cssText = 'position:absolute;top:4px;right:6px;width:32px;height:32px;border:0;background:none;font:900 20px/1 system-ui;color:#1b1430;cursor:pointer';
   x.addEventListener('click', function () { try { localStorage.setItem(seenKey, '1'); } catch (e) {} bar.remove(); });
