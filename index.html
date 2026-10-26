@@ -152,6 +152,24 @@
 </div>
 <footer>無料・登録なし。写真の位置情報(どこで撮ったか)も自動で消えます。</footer>
 
+<style>
+  /* install.js の案内(#igHelp): 細い画面(iPhone SE)では「あとで(このまま遊ぶ)」が3行に折れるので、ボタンを たてに並べる。部品の元が直ったら消してよい */
+  @media (max-width: 420px) { #igHelp .ig-btns { flex-direction: column; } }
+</style>
+<script>
+  // はじめの画面(Google Play 風: ホーム画面に入れる / このまま使う)。install.js が出す。
+  // アドレスに #noinstall・#play・#play-video のときは出ない(#video のときは出て、閉じると動画の方)
+  window.INSTALL_GATE = {
+    id: 'resize', name: '写真・動画リサイズ', icon: 'icon-192.png', color: '#7c4dff',
+    tagline: '写真・動画を「軽くする」',
+    badges: ['無料', '広告なし', '登録なし'],
+    shots: ['shots/1.jpg', 'shots/2.jpg', 'shots/3.jpg', 'shots/4.jpg'],
+    desc: '写真や動画を、えらぶだけで軽くするアプリです。LINEやメールで送りやすい重さにして、そのまま送れます。',
+    points: ['写真は何枚でもまとめて。1枚200〜300KBが標準', '動画は、重さを半分・4分の1・10分の1から選べる', 'スマホの中だけで処理。写真の撮影場所の情報も消える'],
+    playLabel: '▶ このまま使う'
+  };
+</script>
+<script src="install.js"></script>
 <script>
 'use strict';
 var $ = function (id) { return document.getElementById(id); };
